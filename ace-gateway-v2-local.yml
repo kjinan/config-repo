@@ -1,11 +1,67 @@
+logging:
+    level:
+#        tk.mybatis: DEBUG
+        com.github.wxiaoqi.security.admin: DEBUG
+spring:
+    application:
+        name: ace-admin
+    jackson:
+        date-format: yyyy-MM-dd HH:mm:ss
+        time-zone: GMT+8
+        default-property-inclusion: non_null
+    datasource:
+        name: test
+        url: jdbc:mysql://localhost:3306/ag_admin_v1?useUnicode=true&characterEncoding=UTF8
+        username: root
+        password: root
+        # 使用druid数据源
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        filters: stat
+        maxActive: 20
+        initialSize: 1
+        maxWait: 60000
+        minIdle: 1
+        timeBetweenEvictionRunsMillis: 60000
+        minEvictableIdleTimeMillis: 300000
+        validationQuery: select 'x'
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+        poolPreparedStatements: true
+        maxOpenPreparedStatements: 20
+    rabbitmq:
+        host: localhost
+        port: 5672
+        username: guest
+        password: guest
+    sleuth:
+      enabled: true
+      http:
+        legacy:
+          enabled: true
+sample:
+  zipkin:
+    # When enabled=false, traces log to the console. Comment to send to zipkin
+    enabled: false
+
+mybatis:
+    basepackage: com.github.wxiaoqi.security.admin.mapper
+    xmlLocation: classpath:mapper/**/*.xml
+    mapper-locations: "classpath*:mapper/*.xml"
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+
+
 server:
-  port: 8765
+    port: 8762
+
 
 eureka:
     instance:
         statusPageUrlPath: /actuator/info
         healthCheckUrlPath: /actuator/health
-        home-page-url-path: /
         prefer-ip-address: true
         ip-address: 127.0.0.1
     client:
@@ -13,74 +69,7 @@ eureka:
 #            defaultZone: http://localhost:8761/eureka/
                     # docker 部署开启
             defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/
-
-#请求和响应GZIP压缩支持
-feign:
-  httpclient:
-    enabled: false
-  okhttp:
-    enabled: true
-  compression:
-    request:
-      enabled: true
-      mime-types: text/xml,application/xml,application/json
-      min-request-size: 2048
-    response:
-      enabled: true
-
-spring:
-  application:
-      name: ace-gateway-v2
-  redis:
-      database: 2
-      host: 10.103.60.213
-      jedis:
-        pool:
-            max-active: 20
-  rabbitmq:
-      host: 127.0.0.1
-      port: 5672
-      username: guest
-      password: guest
-  sleuth:
-    enabled: true
-    http:
-      legacy:
-        enabled: true
-  cloud:
-     gateway:
-       discovery:
-         locator:
-           lowerCaseServiceId: true
-           enabled: true
-
-logging:
-  level:
-    com.github.wxiaoqi.security.gate.v2: info
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-  security:
-    enabled: false
-
-
-gate:
-  ignore:
-    startWith: /auth/jwt
-
-
-auth:
-  serviceId: ace-auth
-  user:
-    token-header: Authorization
-  client:
-    token-header: x-client-token
-    id: ace-gate  #不填则默认读取spring.application.name
-    secret: 123456
-
+# 必须配置
 feign:
   httpclient:
     enabled: false
@@ -90,8 +79,8 @@ feign:
 ribbon:
   eureka:
     enabled: true
-  ReadTimeout: 60000
-  ConnectTimeout: 60000
+  ReadTimeout: 100000
+  ConnectTimeout: 100000
   MaxAutoRetries: 0
   MaxAutoRetriesNextServer: 1
   OkToRetryOnAllOperations: false
@@ -107,4 +96,47 @@ hystrix:
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 10000
+            timeoutInMilliseconds: 110000
+
+
+# 配置swagger
+swagger:
+    enabled: true
+    base-package: com.github.wxiaoqi.security.admin
+    title: ace-admin
+    version: 1.0.0.SNAPSHOT
+    description: 管理后端服务
+    contact:
+        name: admin
+
+auth:
+  serviceId: ace-auth
+  user:
+    token-header: Authorization
+  client:
+    id: ace-admin
+    secret: 123456
+    token-header: x-client-token
+
+#redis-cache 相关
+redis:
+    pool:
+         maxActive: 300
+         maxIdle: 100
+         maxWait: 1000
+    host: 10.103.60.213
+    port: 6379
+    password:
+    timeout: 2000
+    # 服务或应用名
+    sysName: ace-admin
+    enable: true
+    database: 0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  security:
+    enabled: false
