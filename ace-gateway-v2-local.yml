@@ -80,11 +80,7 @@ auth:
     id: ace-gate
     secret: 123456
 
-feign:
-  httpclient:
-    enabled: false
-  okhttp:
-    enabled: true
+
 
 ribbon:
   eureka:
